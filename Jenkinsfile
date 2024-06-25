@@ -13,7 +13,10 @@ pipeline {
         }
 
         stage('Clone the github repo') {
-             git 'https://github.com/Suraj0419/WebApi2.git'
+        steps{
+          git 'https://github.com/Suraj0419/WebApi2.git'
+        }
+           
         }
 
         stage('Build') {
