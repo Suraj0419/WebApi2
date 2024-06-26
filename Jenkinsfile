@@ -33,10 +33,10 @@ pipeline {
             steps {
                 echo 'Updating configuration...'
                script {
-   def appSettingsPath = 'appsettings.json'
-                    def jsonSlurper = new groovy.json.JsonSlurper()
-                    def json = jsonSlurper.parse(new File(appSettingsPath))
-                    
+  def appSettingsPath = 'path/to/your/appsettings.json'
+                    def jsonContent = readFile(file: appSettingsPath)
+                    def json = new groovy.json.JsonSlurper().parseText(jsonContent)
+
                     // Adding new key-value pairs
                     if (!json.ConnectionStrings) {
                         json.ConnectionStrings = [:]
@@ -44,7 +44,7 @@ pipeline {
                     json.ConnectionStrings.DefaultConnection = "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};"
 
                     def jsonOutput = groovy.json.JsonOutput.toJson(json)
-                    new File(appSettingsPath).write(groovy.json.JsonOutput.prettyPrint(jsonOutput))
+                    writeFile(file: appSettingsPath, text: groovy.json.JsonOutput.prettyPrint(jsonOutput))
                 }
 
             }
