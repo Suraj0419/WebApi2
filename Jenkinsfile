@@ -1,11 +1,11 @@
 pipeline {
     agent any
-    
+
     tools {
-       dotnetsdk 'dotNet'
+        dotnetsdk 'dotnet-6.0' // Ensure this matches the name you gave in the Global Tool Configuration
     }
+
     stages {
-       
        stage('Clean the workspace') {
             steps {
                 cleanWs()
@@ -18,29 +18,24 @@ pipeline {
         }
            
         }
-
         stage('Build') {
             steps {
-                sh 'dotnet build --configuration Release'
+                bat 'dotnet restore'
+                bat 'dotnet build --configuration Release'
             }
         }
         stage('Publish') {
-             steps {
-                sh 'dotnet publish --configuration Release --output ./publish'
+            steps {
+                // Publish the project
+                bat 'dotnet publish --configuration Release --output %WORKSPACE%\\publish'
             }
         }
-       
+        
     }
 
-     post {
-        success {
-            
-            echo 'Build and server startup succeeded!'
-            
-        }
-        failure {
-            echo 'Build or server startup failed.'
+    post {
+        always {
+            cleanWs()
         }
     }
 }
-
