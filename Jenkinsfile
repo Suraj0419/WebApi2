@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        dotnetsdk 'dotnet-6.0' // Ensure this matches the name you gave in the Global Tool Configuration
+        dotnetsdk 'dotnet-8.0'
     }
 
     stages {
