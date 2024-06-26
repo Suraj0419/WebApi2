@@ -34,25 +34,19 @@ pipeline {
                 echo 'Updating configuration...'
                script {
              def appSettingsPath = 'appsettings.json'
-                 def jsonContent = readFile(file: appSettingsPath)
-                    def jsonSlurper = new groovy.json.JsonSlurper()
-                    def lazyMap = jsonSlurper.parseText(jsonContent)
-
-                    // Convert LazyMap to a regular HashMap
-                    def json = new HashMap(lazyMap)
+               // Read, parse, modify, and write JSON in one block to avoid serialization issues
+                    def jsonContent = readFile(file: appSettingsPath)
+                    def json = new groovy.json.JsonSlurper().parseText(jsonContent) as Map
 
                     // Add or update the connection string
-                    if (!json.ConnectionStrings) {
-                        json.ConnectionStrings = [:]
-                    }
+                    json.ConnectionStrings = json.ConnectionStrings ?: [:]
                     json.ConnectionStrings.DefaultConnection = "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};"
 
                     // Convert the JSON object back to a string
-                    def jsonOutput = groovy.json.JsonOutput.toJson(json)
-                    def prettyJsonOutput = groovy.json.JsonOutput.prettyPrint(jsonOutput)
+                    def jsonOutput = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json))
 
                     // Write the updated JSON back to the file
-                    writeFile(file: appSettingsPath, text: prettyJsonOutput)
+                    writeFile(file: appSettingsPath, text: jsonOutput)
                 }
 
             }
