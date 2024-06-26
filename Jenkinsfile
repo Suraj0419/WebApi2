@@ -34,14 +34,15 @@ pipeline {
                 echo 'Updating configuration...'
                script {
              def appSettingsPath = 'appsettings.json'
-                    def jsonContent = readFile(file: appSettingsPath)
-                    
-                    def updatedJsonContent = jsonContent.replaceFirst(/"ConnectionStrings": {/, """
-                        "ConnectionStrings": {
-                            "DefaultConnection": "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};",
-                    """)
-                    
-                    writeFile(file: appSettingsPath, text: updatedJsonContent)
+                   def json = readJSON(file: appSettingsPath)
+
+                    // Adding new key-value pairs
+                    if (!json.ConnectionStrings) {
+                        json.ConnectionStrings = [:]
+                    }
+                    json.ConnectionStrings.DefaultConnection = "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};"
+
+                    writeJSON(file: appSettingsPath, json: json, pretty: 4)
                 }
 
             }
