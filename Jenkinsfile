@@ -5,6 +5,14 @@ pipeline {
         dotnetsdk 'dotnet-8.0'
     }
 
+     environment {
+        DB_SERVER = '192.168.1.101'
+        DB_NAME = 'CTraveller'
+        DB_USER = 'sa'
+        DB_PASSWORD = 'dts@123'
+    
+
+
     stages {
        stage('Clean the workspace') {
             steps {
@@ -17,6 +25,21 @@ pipeline {
           git 'https://github.com/Suraj0419/WebApi2.git'
         }
            
+        }
+
+        stage('Update Config') {
+            steps {
+                echo 'Updating configuration...'
+                script {
+                    def jsonSlurper = new groovy.json.JsonSlurper()
+                    def json = jsonSlurper.parse(new File('appsettings.json'))
+
+                    json.ConnectionStrings.DefaultConnection = "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};"
+
+                    def jsonOutput = groovy.json.JsonOutput.toJson(json)
+                    new File('appsettings.json').write(groovy.json.JsonOutput.prettyPrint(jsonOutput))
+                }
+            }
         }
         stage('Build') {
             steps {
