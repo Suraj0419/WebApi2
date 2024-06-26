@@ -32,12 +32,13 @@ pipeline {
         stage('Update Config') {
             steps {
                 echo 'Updating configuration...'
-                script {
-                    def appSettingsPath = 'appsettings.json'
-                    bat """
-                    powershell -Command "(Get-Content ${appSettingsPath}) -replace '\\$\\{DB_SERVER\\}', '$DB_SERVER' -replace '\\$\\{DB_NAME\\}', '$DB_NAME' -replace '\\$\\{DB_USER\\}', '$DB_USER' -replace '\\$\\{DB_PASSWORD\\}', '$DB_PASSWORD' | Set-Content ${appSettingsPath}"
-                    """
-                }
+               script {
+  def appSettingsPath = 'appsettings.json'
+  bat """
+  powershell -Command "(Get-Content ${appSettingsPath}) -replace '\\$\\{DB_SERVER\\}', '${DB_SERVER}' -replace '\\$\\{DB_NAME\\}', '${DB_NAME}' -replace '\\$\\{DB_USER\\}', '${DB_USER}' -replace '\\$\\{DB_PASSWORD\\}', '${DB_PASSWORD}' | Set-Content ${appSettingsPath}"
+  """
+}
+
             }
         }
         stage('Build') {
