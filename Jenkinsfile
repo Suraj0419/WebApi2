@@ -46,7 +46,6 @@ pipeline {
                     def jsonOutput = groovy.json.JsonOutput.toJson(json)
                     new File(appSettingsPath).write(groovy.json.JsonOutput.prettyPrint(jsonOutput))
                 }
-}
 
             }
         }
