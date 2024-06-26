@@ -35,7 +35,7 @@ pipeline {
                script {
   def appSettingsPath = 'appsettings.json'
   bat """
-  powershell -Command "(Get-Content ${appSettingsPath}) -replace '\\$\\{DB_SERVER\\}', '${DB_SERVER}' -replace '\\$\\{DB_NAME\\}', '${DB_NAME}' -replace '\\$\\{DB_USER\\}', '${DB_USER}' -replace '\\$\\{DB_PASSWORD\\}', '${DB_PASSWORD}' | Set-Content ${appSettingsPath}"
+  powershell -Command "(Get-Content ${appSettingsPath}) -replace '\\\$\\{DB_SERVER\\}', '${env.DB_SERVER}' -replace '\\\$\\{DB_NAME\\}', '${env.DB_NAME}' -replace '\\\$\\{DB_USER\\}', '${env.DB_USER}' -replace '\\\$\\{DB_PASSWORD\\}', '${env.DB_PASSWORD}' | Set-Content ${appSettingsPath}"
   """
 }
 
