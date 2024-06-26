@@ -33,13 +33,10 @@ pipeline {
             steps {
                 echo 'Updating configuration...'
                 script {
-                    def jsonSlurper = new groovy.json.JsonSlurper()
-                    def json = jsonSlurper.parse(new File('appsettings.json'))
-
-                    json.ConnectionStrings.DefaultConnection = "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};"
-
-                    def jsonOutput = groovy.json.JsonOutput.toJson(json)
-                    new File('appsettings.json').write(groovy.json.JsonOutput.prettyPrint(jsonOutput))
+                    def appSettingsPath = 'appsettings.json'
+                    bat """
+                    powershell -Command "(Get-Content ${appSettingsPath}) -replace '\\$\\{DB_SERVER\\}', '$DB_SERVER' -replace '\\$\\{DB_NAME\\}', '$DB_NAME' -replace '\\$\\{DB_USER\\}', '$DB_USER' -replace '\\$\\{DB_PASSWORD\\}', '$DB_PASSWORD' | Set-Content ${appSettingsPath}"
+                    """
                 }
             }
         }
