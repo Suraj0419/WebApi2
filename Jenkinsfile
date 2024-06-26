@@ -33,9 +33,12 @@ pipeline {
             steps {
                 echo 'Updating configuration...'
                script {
-  def appSettingsPath = 'appsettings.json'
+               def appSettingsPath = 'path/to/your/appsettings.json'
                     def jsonContent = readFile(file: appSettingsPath)
                     def json = new groovy.json.JsonSlurper().parseText(jsonContent)
+
+                    // Convert LazyMap to HashMap
+                    json = json.collectEntries { k, v -> [(k): v instanceof Map ? v.collectEntries { k2, v2 -> [(k2): v2] } : v] }
 
                     // Adding new key-value pairs
                     if (!json.ConnectionStrings) {
