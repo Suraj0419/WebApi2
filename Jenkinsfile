@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo 'Updating configuration...'
                script {
-               def appSettingsPath = 'path/to/your/appsettings.json'
+               def appSettingsPath = 'appsettings.json'
                     def jsonContent = readFile(file: appSettingsPath)
                     def json = new groovy.json.JsonSlurper().parseText(jsonContent)
 
