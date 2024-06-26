@@ -34,8 +34,13 @@ pipeline {
     }
 
     post {
-        always {
-            cleanWs()
+        success {
+            
+            echo 'Build and server startup succeeded!'
+            
+        }
+        failure {
+            echo 'Build or server startup failed.'
         }
     }
 }
