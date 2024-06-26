@@ -10,6 +10,8 @@ pipeline {
         DB_NAME = 'CTraveller'
         DB_USER = 'sa'
         DB_PASSWORD = 'dts@123'
+
+        }
     
 
 
