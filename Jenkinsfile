@@ -6,7 +6,7 @@ pipeline {
     }
 
      environment {
-        DB_SERVER = '192.168.1.101'
+        DB_SERVER = 'localhost'
         DB_NAME = 'CTraveller'
         DB_USER = 'sa'
         DB_PASSWORD = 'dts@123'
