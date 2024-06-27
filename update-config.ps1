@@ -15,6 +15,7 @@ if (-not $jsonContent.PSObject.Properties['ConnectionStrings']) {
 
 # Ensure DefaultConnection property exists
 if (-not $jsonContent.ConnectionStrings.PSObject.Properties['DefaultConnection']) {
+    
     $jsonContent.ConnectionStrings | Add-Member -MemberType NoteProperty -Name 'DefaultConnection' -Value @{}
 }
 $jsonContent.ConnectionStrings.DefaultConnection = "Server=$dbServer;Database=$dbName;User Id=$dbUser;Password=$dbPassword;"
