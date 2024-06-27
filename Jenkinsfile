@@ -34,19 +34,9 @@ pipeline {
                 echo 'Updating configuration...'
                script {
              def appSettingsPath = 'appsettings.json'
-               // Read, parse, modify, and write JSON in one block to avoid serialization issues
-                    def jsonContent = readFile(file: appSettingsPath)
-                    def json = new groovy.json.JsonSlurper().parseText(jsonContent) as Map
-
-                    // Add or update the connection string
-                    json.ConnectionStrings = json.ConnectionStrings ?: [:]
-                    json.ConnectionStrings.DefaultConnection = "Server=${env.DB_SERVER};Database=${env.DB_NAME};User Id=${env.DB_USER};Password=${env.DB_PASSWORD};"
-
-                    // Convert the JSON object back to a string
-                    def jsonOutput = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(json))
-
-                    // Write the updated JSON back to the file
-                    writeFile(file: appSettingsPath, text: jsonOutput)
+                bat """
+                powershell -NoProfile -ExecutionPolicy Bypass -File update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}'
+                """
                 }
 
             }
