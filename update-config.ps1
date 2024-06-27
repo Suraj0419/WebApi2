@@ -16,16 +16,15 @@ if (-not $jsonContent.ConnectionStrings) {
 
 $connectionString = "Server=$dbServer; Database=$dbName; User Id=$dbUser; Password=$dbPassword;"
 
-# Update the DefaultConnection property with the new connection string
-$jsonContent.ConnectionStrings.DefaultConnection = $connectionString
+# Construct the new ConnectionStrings section
+$newConnectionStrings = @"
+"ConnectionStrings": {
+    "DefaultConnection": "$connectionString"
+}
+"@
 
-$updatedJson = @{
-    Logging = $jsonContent.Logging
-    AllowedHosts = $jsonContent.AllowedHosts
-    ConnectionStrings = @{
-        DefaultConnection = "$connectionString"
-    }
-} | ConvertTo-Json -Depth 32
+# Replace the existing ConnectionStrings section with the new one
+$updatedJsonContent = $jsonContent -replace '"ConnectionStrings": {[^}]*}', $newConnectionStrings
 
-# Write the pretty-printed JSON to the file
-$updatedJson | Set-Content -Path $appSettingsPath -Force -Encoding utf8
+# Write the updated JSON content back to the file
+$updatedJsonContent | Set-Content -Path $appSettingsPath -Force -Encoding utf8
