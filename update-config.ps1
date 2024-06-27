@@ -19,8 +19,13 @@ $connectionString = "Server=$dbServer; Database=$dbName; User Id=$dbUser; Passwo
 # Update the DefaultConnection property with the new connection string
 $jsonContent.ConnectionStrings.DefaultConnection = $connectionString
 
-# Convert the updated object back to JSON and write to the file
-$updatedJson = $jsonContent | ConvertTo-Json -Depth 32 | Out-String
+$updatedJson = @{
+    Logging = $jsonContent.Logging
+    AllowedHosts = $jsonContent.AllowedHosts
+    ConnectionStrings = @{
+        DefaultConnection = $connectionString
+    }
+} | ConvertTo-Json -Depth 32
 
 # Write the pretty-printed JSON to the file
 $updatedJson | Set-Content -Path $appSettingsPath -Force -Encoding utf8
