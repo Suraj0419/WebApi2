@@ -9,9 +9,13 @@ param (
 # Read the content of appsettings.json
 $jsonContent = Get-Content -Path $appSettingsPath -Raw | ConvertFrom-Json
 
-# Add or update the connection string
-if (-not $jsonContent.ConnectionStrings) {
-    $jsonContent.ConnectionStrings = @{}
+if (-not $jsonContent.PSObject.Properties['ConnectionStrings']) {
+    $jsonContent | Add-Member -MemberType NoteProperty -Name 'ConnectionStrings' -Value @{}
+}
+
+# Ensure DefaultConnection property exists
+if (-not $jsonContent.ConnectionStrings.PSObject.Properties['DefaultConnection']) {
+    $jsonContent.ConnectionStrings | Add-Member -MemberType NoteProperty -Name 'DefaultConnection' -Value ""
 }
 $jsonContent.ConnectionStrings.DefaultConnection = "Server=$dbServer;Database=$dbName;User Id=$dbUser;Password=$dbPassword;"
 
