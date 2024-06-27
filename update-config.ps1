@@ -23,7 +23,7 @@ $updatedJson = @{
     Logging = $jsonContent.Logging
     AllowedHosts = $jsonContent.AllowedHosts
     ConnectionStrings = @{
-        DefaultConnection = $connectionString
+        DefaultConnection = "$connectionString"
     }
 } | ConvertTo-Json -Depth 32
 
