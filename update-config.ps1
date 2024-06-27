@@ -14,16 +14,13 @@ if (-not $jsonContent.ConnectionStrings) {
     $jsonContent | Add-Member -MemberType NoteProperty -Name 'ConnectionStrings' -Value @{}
 }
 
+$connectionString = "Server=$dbServer; Database=$dbName; User Id=$dbUser; Password=$dbPassword;"
+
 # Update the DefaultConnection property with the new connection string
-$jsonContent.ConnectionStrings.DefaultConnection = "Server=$dbServer; Database=$dbName; User Id=$dbUser; Password=$dbPassword;"
+$jsonContent.ConnectionStrings.DefaultConnection = $connectionString
 
-
-
-$updatedJson = $jsonContent | ConvertTo-Json -Depth 32 -Compress | 
-    ForEach-Object { $_ -replace '\\u0027', "'" }
-
-# Pretty-print the JSON
-$prettyJson = $updatedJson | ConvertFrom-Json | ConvertTo-Json -Depth 32
+# Convert the updated object back to JSON and write to the file
+$updatedJson = $jsonContent | ConvertTo-Json -Depth 32 | Out-String
 
 # Write the pretty-printed JSON to the file
-$prettyJson | Set-Content -Path $appSettingsPath -Force
+$updatedJson | Set-Content -Path $appSettingsPath -Force -Encoding utf8
