@@ -17,7 +17,11 @@ if (-not $jsonContent.ConnectionStrings) {
 # Update the DefaultConnection property with the new connection string
 $jsonContent.ConnectionStrings.DefaultConnection = "Server=$dbServer; Database=$dbName; User Id=$dbUser; Password=$dbPassword;"
 
-$decodedContent = $jsonContent -replace '\\u0027', "'"
+
 
 # Convert the updated object back to JSON and write to the file
-$decodedContent | ConvertTo-Json -Depth 32 | Set-Content -Path $appSettingsPath -Force
+$jsonContent | ConvertTo-Json -Depth 32 | Out-File -FilePath $appSettingsPath -Force -Encoding utf8
+
+# Re-read the JSON content to pretty print it
+$prettyJsonContent = Get-Content -Path $appSettingsPath -Raw | ConvertFrom-Json | ConvertTo-Json -Depth 32
+$prettyJsonContent | Set-Content -Path $appSettingsPath -Force
