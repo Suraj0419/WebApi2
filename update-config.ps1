@@ -19,9 +19,11 @@ $jsonContent.ConnectionStrings.DefaultConnection = "Server=$dbServer; Database=$
 
 
 
-# Convert the updated object back to JSON and write to the file
-$jsonContent | ConvertTo-Json -Depth 32 | Out-File -FilePath $appSettingsPath -Force -Encoding utf8
+$updatedJson = $jsonContent | ConvertTo-Json -Depth 32 -Compress | 
+    ForEach-Object { $_ -replace '\\u0027', "'" }
 
-# Re-read the JSON content to pretty print it
-$prettyJsonContent = Get-Content -Path $appSettingsPath -Raw | ConvertFrom-Json | ConvertTo-Json -Depth 32
-$prettyJsonContent | Set-Content -Path $appSettingsPath -Force
+# Pretty-print the JSON
+$prettyJson = $updatedJson | ConvertFrom-Json | ConvertTo-Json -Depth 32
+
+# Write the pretty-printed JSON to the file
+$prettyJson | Set-Content -Path $appSettingsPath -Force
