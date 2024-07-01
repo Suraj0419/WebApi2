@@ -64,7 +64,7 @@ pipeline {
                     // Start the application
                     bat """
                     cd ${deployDir}
-                    start /B dotnet MyWebApi.dll
+                    start /B dotnet MyWebApi.dll --urls "http://localhost:5001"
                     """
                 }
             }
