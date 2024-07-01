@@ -57,6 +57,11 @@ pipeline {
                     def deployDir = "C:\\inetpub\\wwwroot\\WebApi2"
                     def siteName = "WebApi2"
 
+
+                     bat """
+                    powershell -Command "Import-Module WebAdministration; if (Get-WebAppPoolState -Name 'WebApi2AppPool' | Select-String 'Started') { Stop-WebAppPool -Name 'WebApi2AppPool' }"
+                    """
+
                     // Ensure IIS site directory exists
                     bat """
                     IF NOT EXIST "${deployDir}" (
