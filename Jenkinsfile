@@ -66,9 +66,15 @@ pipeline {
 
                     // Copy published files to the IIS site directory
                     bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
-
-                     bat """
+                    
+                    // Set permissions on the deployment directory
+                    bat """
                     icacls "${deployDir}" /grant IIS_IUSRS:(OI)(CI)RX /T
+                    """
+
+                    // Set permissions on the web.config file
+                    bat """
+                    icacls "${deployDir}\\web.config" /grant IIS_IUSRS:RX
                     """
 
                     bat """
