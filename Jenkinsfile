@@ -52,7 +52,7 @@ pipeline {
         stage('Deploy Locally') {
             steps {
                 script {
-                    def deployDir = "C:\\Users\\dccpl\\source\\repos\\WebApi2\\prod" // Change this to your local deployment directory
+                    def deployDir = "C:\\Users\\dccpl\\source\\repos\\WebApi2\\WebApi2\\prod" // Change this to your local deployment directory
 
                     // Clean the deploy directory
                     bat "IF EXIST ${deployDir} (rmdir /S /Q ${deployDir})"
