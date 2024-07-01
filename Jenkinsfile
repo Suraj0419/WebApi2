@@ -12,9 +12,7 @@ pipeline {
         DB_PASSWORD = 'dts@123'
     }
 
-    parameters {
-        choice(name: 'ENVIRONMENT', choices: ['Development', 'UAT', 'Production'], description: 'Select the environment to deploy')
-    }
+   
 
     stages {
         stage('Clean the workspace') {
