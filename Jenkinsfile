@@ -67,6 +67,10 @@ pipeline {
                     // Copy published files to the IIS site directory
                     bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
 
+                     bat """
+                    icacls "${deployDir}" /grant IIS_IUSRS:(OI)(CI)RX /T
+                    """
+
                     bat """
                     powershell -Command "Import-Module WebAdministration; if (-not (Get-Item IIS:\\AppPools\\WebApi2AppPool -ErrorAction SilentlyContinue)) { New-Item IIS:\\AppPools\\WebApi2AppPool; Set-ItemProperty IIS:\\AppPools\\WebApi2AppPool -name managedRuntimeVersion -value '' }"
                     """
