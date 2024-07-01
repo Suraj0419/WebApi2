@@ -72,7 +72,7 @@ pipeline {
                     // Create IIS site if it doesn't exist
                   bat """
                     powershell -Command "Import-Module WebAdministration; if (-not (Get-Website -Name ${siteName} -ErrorAction SilentlyContinue)) { New-Website -Name ${siteName} -PhysicalPath ${deployDir} -Port ${port} -HostHeader localhost; Set-ItemProperty IIS:\\Sites\\${siteName} -name applicationPool -value 'WebApi2AppPool' }"
-
+                    """
                     // Restart IIS site
                     bat "iisreset /restart"
                 }
