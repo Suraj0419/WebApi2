@@ -52,7 +52,7 @@ pipeline {
         stage('Deploy Locally') {
             steps {
                 script {
-                    def deployDir = "C:\\Users\\dccpl\\source\\repos\\WebApi2" // Change this to your local deployment directory
+                    def deployDir = "C:\\Users\\dccpl\\source\\repos\\WebApi2\\prod" // Change this to your local deployment directory
 
                     // Clean the deploy directory
                     bat "IF EXIST ${deployDir} (rmdir /S /Q ${deployDir})"
@@ -60,9 +60,6 @@ pipeline {
 
                     // Copy published files to the deploy directory
                     bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
-
-                    // Stop any existing instance of the application
-                    bat "FOR /F \"tokens=5\" %P IN ('netstat -ano ^| findstr :5000') DO taskkill /F /PID %P"
 
                     // Start the application
                     bat """
