@@ -57,6 +57,8 @@ pipeline {
                     def deployDir = "C:\\inetpub\\wwwroot\\WebApi2"
                     def siteName = "WebApi2"
 
+                    bat 'iisreset /stop'
+
 
                      bat """
                     powershell -Command "Import-Module WebAdministration; if (Get-WebAppPoolState -Name 'WebApi2AppPool' | Select-String 'Started') { Stop-WebAppPool -Name 'WebApi2AppPool' }"
