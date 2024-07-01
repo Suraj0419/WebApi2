@@ -12,6 +12,10 @@ pipeline {
         DB_PASSWORD = 'dts@123'
     }
 
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['Development', 'UAT', 'Production'], description: 'Select the environment to deploy')
+    }
+
     stages {
         stage('Clean the workspace') {
             steps {
@@ -19,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Clone the github repo') {
+        stage('Clone the GitHub repo') {
             steps {
                 git 'https://github.com/Suraj0419/WebApi2.git'
             }
@@ -49,23 +53,34 @@ pipeline {
             }
         }
 
-        stage('Deploy Locally') {
+        stage('Deploy to IIS') {
             steps {
                 script {
-                    def deployDir = "C:\\Users\\dccpl\\source\\repos\\WebApi2\\WebApi2\\prod" // Change this to your local deployment directory
+                    def deployDir = "C:\\inetpub\\wwwroot\\WebApi2"
+                    def siteName = "WebApi2"
 
-                    // Clean the deploy directory
-                    bat "IF EXIST ${deployDir} (rmdir /S /Q ${deployDir})"
-                    bat "mkdir ${deployDir}"
+                    // Ensure IIS site directory exists
+                    bat """
+                    IF NOT EXIST "${deployDir}" (
+                        mkdir "${deployDir}"
+                    )
+                    """
 
-                    // Copy published files to the deploy directory
+                    // Copy published files to the IIS site directory
                     bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
 
-                    // Start the application
+                    // Create IIS site if it doesn't exist
                     bat """
-                    cd ${deployDir}
-                    start /B dotnet ${deployDir}\\WebApi2.dll --urls "http://localhost:5001"
+                    powershell -Command "
+                        if (-not (Get-Website -Name ${siteName} -ErrorAction SilentlyContinue)) {
+                            New-Website -Name ${siteName} -PhysicalPath ${deployDir} -Port 5200 -HostHeader localhost
+                            Set-ItemProperty IIS:\\Sites\\${siteName} -name applicationPool -value 'WebApi2AppPool'
+                        }
+                    "
                     """
+
+                    // Restart IIS site
+                    bat "iisreset /restart"
                 }
             }
         }
@@ -73,10 +88,10 @@ pipeline {
 
     post {
         success {
-            echo 'Build and local deployment succeeded!'
+            echo 'Build and deployment succeeded!'
         }
         failure {
-            echo 'Build or local deployment failed.'
+            echo 'Build or deployment failed.'
         }
     }
 }
