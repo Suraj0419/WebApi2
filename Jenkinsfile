@@ -67,6 +67,10 @@ pipeline {
                     // Copy published files to the IIS site directory
                     bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
 
+                    bat """
+                    powershell -Command "Import-Module WebAdministration; if (-not (Get-Item IIS:\\AppPools\\WebApi2AppPool -ErrorAction SilentlyContinue)) { New-Item IIS:\\AppPools\\WebApi2AppPool; Set-ItemProperty IIS:\\AppPools\\WebApi2AppPool -name managedRuntimeVersion -value '' }"
+                    """
+
                     // Create IIS site if it doesn't exist
                   bat """
                     powershell -Command "Import-Module WebAdministration; if (-not (Get-Website -Name ${siteName} -ErrorAction SilentlyContinue)) { New-Website -Name ${siteName} -PhysicalPath ${deployDir} -Port 5000 -HostHeader localhost; Set-ItemProperty IIS:\\Sites\\${siteName} -name applicationPool -value 'WebApi2AppPool' }"
