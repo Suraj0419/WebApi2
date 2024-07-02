@@ -17,7 +17,7 @@ pipeline {
         }
         stage("Release Stage") {
             steps {
-                bat 'dotnet build %WORKSPACE%\\WebApi2.sln /p:PublishProfile=" %WORKSPACE%\\WebApi2\\Properties\\PublishProfiles\\FolderProfile.pubxml" /p:Platform="Any CPU" /p:DeployOnBuild=true /m'
+                bat 'dotnet build %WORKSPACE%\\WebApi2.sln /p:PublishProfile=" %WORKSPACE%\\WebApi\\Properties\\PublishProfiles\\FolderProfile.pubxml" /p:Platform="Any CPU" /p:DeployOnBuild=true /m'
             }
         }
         stage('Deploy Stage') {
