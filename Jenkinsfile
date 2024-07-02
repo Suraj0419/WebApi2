@@ -26,7 +26,10 @@ pipeline {
             script {
                     def result = bat(script: 'net start "w3svc"', returnStatus: true)
                     if (result != 0) {
-                        error('Failed to start W3SVC service')
+                       bat 'net start "w3svc"'
+                    }
+                    else{
+                     echo 'W3SVC service is already running'
                     }
                 }
                
