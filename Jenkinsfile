@@ -15,6 +15,11 @@ pipeline {
                 git 'https://github.com/Suraj0419/WebApi2.git'
             }
         }
+         stage('Build Stage') {
+            steps {
+                bat 'C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\webApi\\WebApi2.sln --configuration Release'
+            }
+        }
         stage("Release Stage") {
             steps {
                 bat 'dotnet build %WORKSPACE%\\WebApi2.sln /p:PublishProfile=" %WORKSPACE%\\Properties\\PublishProfiles\\FolderProfile.pubxml" /p:Platform="Any CPU" /p:DeployOnBuild=true /m'
