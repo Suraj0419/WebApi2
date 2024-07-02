@@ -17,7 +17,7 @@ pipeline {
         }
          stage('Build Stage') {
             steps {
-                bat 'C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\webApi\\WebApi2.sln --configuration Release'
+               bat 'dotnet build C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\webApi\\webApi2.sln --configuration Release'
             }
         }
         stage("Release Stage") {
