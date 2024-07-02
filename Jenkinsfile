@@ -23,19 +23,11 @@ pipeline {
         stage('Deploy Stage') {
             steps {
 
-            script {
-                    def result = bat(script: 'net start "w3svc"', returnStatus: true)
-                    if (result != 0) {
-                       bat 'net start "w3svc"'
-                    }
-                    else{
-                     echo 'W3SVC service is already running'
-                    }
-                }
                
                 bat 'net stop "w3svc"'
+                 bat 'net start "w3svc"'
                 bat '"C:\\Program Files (x86)\\IIS\\Microsoft Web Deploy V3\\msdeploy.exe" -verb:sync -source:package="%WORKSPACE%\\bin\\Debug\\net8.0\\webApi2.zip" -dest:auto -setParam:"IIS Web Application Name"="Demo.Web" -skip:objectName=filePath,absolutePath=".\\\\PackagDemoeTmp\\\\Web.config$" -enableRule:DoNotDelete -allowUntrusted=true'
-                bat 'net start "w3svc"'
+               
             }
         }
     }
