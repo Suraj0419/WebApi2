@@ -79,7 +79,7 @@ pipeline {
                 echo 'Updating configuration...'
                 script {
                     bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER}' -dbName '${DB_NAME}' -dbUser '${DB_USER}' -dbPassword '${DB_PASSWORD}' }"
+                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer ${DB_SERVER} -dbName ${DB_NAME} -dbUser ${DB_USER} -dbPassword ${DB_PASSWORD} }"
                     """
                 }
             }
