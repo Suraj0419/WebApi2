@@ -9,6 +9,15 @@ pipeline {
         choice(name: 'ENV', choices: ['Development', 'Production', 'UAT'], description: 'Select the environment')
     }
 
+    environment {
+        DB_SERVER = ''
+        DB_NAME = ''
+        DB_USER = ''
+        DB_PASSWORD = ''
+        DEPLOY_DIR = ''
+        SITE_NAME = ''
+    }
+
     stages {
         stage('Set Environment Variables') {
             steps {
@@ -21,7 +30,7 @@ pipeline {
                             'DB_NAME=CTraveller_Dev',
                             'DB_USER=sa',
                             'DB_PASSWORD=dev_password',
-                            'DEPLOY_DIR=C:\\Users\\dccpl\\source\\dev'
+                            'DEPLOY_DIR=dev'
                         ]
                     } else if (params.ENV == 'Production') {
                         envVars = [
@@ -29,7 +38,7 @@ pipeline {
                             'DB_NAME=CTraveller_Prod',
                             'DB_USER=sa',
                             'DB_PASSWORD=prod_password',
-                            'DEPLOY_DIR=C:\\Users\\dccpl\\source\\prod'
+                            'DEPLOY_DIR=prod'
                         ]
                     } else if (params.ENV == 'UAT') {
                         envVars = [
@@ -37,7 +46,7 @@ pipeline {
                             'DB_NAME=CTraveller_UAT',
                             'DB_USER=sa',
                             'DB_PASSWORD=uat_password',
-                            'DEPLOY_DIR=C:\\Users\\dccpl\\source\\uat'
+                            'DEPLOY_DIR=uat'
                         ]
                     }
 
@@ -48,63 +57,64 @@ pipeline {
                         echo "DB_USER: ${env.DB_USER}"
                         echo "DB_PASSWORD: ${env.DB_PASSWORD}"
                         echo "DEPLOY_DIR: ${env.DEPLOY_DIR}"
-
-                        // Proceed with other stages
-                        stage('Clean the workspace') {
-                            steps {
-                                cleanWs()
-                            }
-                        }
-
-                        stage('Clone the GitHub repo') {
-                            steps {
-                                git 'https://github.com/Suraj0419/WebApi2.git'
-                            }
-                        }
-
-                        stage('Update Config') {
-                            steps {
-                                echo 'Updating configuration...'
-                                bat """
-                                powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}' }"
-                                """
-                            }
-                        }
-
-                        stage('Build') {
-                            steps {
-                                bat 'dotnet build --configuration Release'
-                            }
-                        }
-
-                        stage('Publish') {
-                            steps {
-                                bat 'dotnet publish --configuration Release --output %WORKSPACE%\\publish'
-                            }
-                        }
-
-                        stage('Deploy to IIS') {
-                            steps {
-                                script {
-                                    bat "echo Deploy Directory: ${env.DEPLOY_DIR}"
-                                    bat "echo Database Server: ${env.DB_SERVER}"
-                                    bat "echo Database Name: ${env.DB_NAME}"
-                                    bat "echo Database User: ${env.DB_USER}"
-                                    bat "echo Database Password: ${env.DB_PASSWORD}"
-
-                                    // Ensure IIS site directory exists
-                                    bat """
-                                    IF NOT EXIST "${env.DEPLOY_DIR}" (
-                                        mkdir "${env.DEPLOY_DIR}"
-                                    )
-                                    """
-
-                                    // Copy published files to the IIS site directory
-                                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${env.DEPLOY_DIR}"
-                                }
-                            }
-                        }
                     }
+                }
+            }
+        }
+
+        stage('Clean the workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Clone the GitHub repo') {
+            steps {
+                git 'https://github.com/Suraj0419/WebApi2.git'
+            }
+        }
+
+        stage('Update Config') {
+            steps {
+                echo 'Updating configuration...'
+                script {
+                    bat """
+                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER}' -dbName '${DB_NAME}' -dbUser '${DB_USER}' -dbPassword '${DB_PASSWORD}' }"
+                    """
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'dotnet build --configuration Release'
+            }
+        }
+
+        stage('Publish') {
+            steps {
+                bat 'dotnet publish --configuration Release --output %WORKSPACE%\\publish'
+            }
+        }
+
+        stage('Deploy to IIS') {
+            steps {
+                script {
+                    bat "echo Deploy Directory: ${DEPLOY_DIR}"
+                    bat "echo Database Server: ${DB_SERVER}"
+                    bat "echo Database Name: ${DB_NAME}"
+                    bat "echo Database User: ${DB_USER}"
+                    bat "echo Database Password: ${DB_PASSWORD}"
+
+                    // Ensure IIS site directory exists
+                    bat """
+                    IF NOT EXIST "${DEPLOY_DIR}" (
+                        mkdir "${DEPLOY_DIR}"
+                    )
+                    """
+
+                    // Copy published files to the IIS site directory
+                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR}"
                 }
             }
         }
