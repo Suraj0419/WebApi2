@@ -11,26 +11,23 @@ pipeline {
 
     environment {
         DB_SERVER_DEV = 'localhost'
-        DB_SERVER_PROD='prodserver'
-         DB_SERVER_UAT='UATserver'
+        DB_SERVER_PROD = 'prodserver'
+        DB_SERVER_UAT = 'UATserver'
         DB_NAME_DEV = 'devDB'
-         DB_NAME_PROD = 'prodDB'
-          DB_NAME_UAT = 'uatDB'
+        DB_NAME_PROD = 'prodDB'
+        DB_NAME_UAT = 'uatDB'
         DB_USER_DEV = 'devUser'
-        DB_USER_PROD = 'devProd'
-        DB_USER_UAT = 'devUser'
+        DB_USER_PROD = 'prodUser'
+        DB_USER_UAT = 'uatUser'
         DB_PASSWORD_DEV = 'dev1234'
-         DB_PASSWORD_PROD = 'PROD1234'
-          DB_PASSWORD_UAT = 'UAT1234'
+        DB_PASSWORD_PROD = 'PROD1234'
+        DB_PASSWORD_UAT = 'UAT1234'
         DEPLOY_DIR_DEV = 'dev'
-         DEPLOY_DIR_PROD = 'prod'
-          DEPLOY_DIR_UAT = 'uat'
-        
+        DEPLOY_DIR_PROD = 'prod'
+        DEPLOY_DIR_UAT = 'uat'
     }
 
     stages {
-       
-
         stage('Clean the workspace') {
             steps {
                 cleanWs()
@@ -47,23 +44,19 @@ pipeline {
             steps {
                 echo 'Updating configuration...'
                 script {
-                   if (params.ENV == 'Development') {
-
-                    bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER_DEV}' -dbName '${DB_NAME_DEV}' -dbUser '${DB_USER_DEV}' -dbPassword '${env.DB_PASSWORD_DEV}' }"
-                    """
-                      
+                    if (params.ENV == 'Development') {
+                        bat """
+                        powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER_DEV}' -dbName '${DB_NAME_DEV}' -dbUser '${DB_USER_DEV}' -dbPassword '${DB_PASSWORD_DEV}' }"
+                        """
                     } else if (params.ENV == 'Production') {
-
-                     bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER_PROD}' -dbName '${env.DB_NAME_PROD}' -dbUser '${env.DB_USER_PROD}' -dbPassword '${env.DB_PASSWORD_PROD}' }"
-                    """
-                       
+                        bat """
+                        powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER_PROD}' -dbName '${DB_NAME_PROD}' -dbUser '${DB_USER_PROD}' -dbPassword '${DB_PASSWORD_PROD}' }"
+                        """
                     } else if (params.ENV == 'UAT') {
                         bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER_UAT}' -dbName '${env.DB_NAME_UAT}' -dbUser '${env.DB_USER_UAT}' -dbPassword '${env.DB_PASSWORD_UAT}' }"
-                    """
-                   
+                        powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER_UAT}' -dbName '${DB_NAME_UAT}' -dbUser '${DB_USER_UAT}' -dbPassword '${DB_PASSWORD_UAT}' }"
+                        """
+                    }
                 }
             }
         }
@@ -83,41 +76,31 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 script {
-
                     if (params.ENV == 'Development') {
-
-                   bat """
-                    IF NOT EXIST "${DEPLOY_DIR_DEV}" (
-                        mkdir "${deployDir}"
-                    )
-                    """
-
-                    // Copy published files to the IIS site directory
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_DEV}"
-                      
+                        bat """
+                        IF NOT EXIST "${DEPLOY_DIR_DEV}" (
+                            mkdir "${DEPLOY_DIR_DEV}"
+                        )
+                        """
+                        // Copy published files to the IIS site directory
+                        bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_DEV}"
                     } else if (params.ENV == 'Production') {
-
-                   bat """
-                    IF NOT EXIST "${DEPLOY_DIR_PROD}" (
-                        mkdir "${DEPLOY_DIR_PROD}"
-                    )
-                    """
-
-                    // Copy published files to the IIS site directory
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_PROD}"
-                       
+                        bat """
+                        IF NOT EXIST "${DEPLOY_DIR_PROD}" (
+                            mkdir "${DEPLOY_DIR_PROD}"
+                        )
+                        """
+                        // Copy published files to the IIS site directory
+                        bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_PROD}"
                     } else if (params.ENV == 'UAT') {
-                       bat """
-                    IF NOT EXIST "${deployDir}" (
-                        mkdir "${DEPLOY_DIR_UAT}"
-                    )
-                    """
-
-                    // Copy published files to the IIS site directory
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_UAT}"
-                   
-                }
-                    
+                        bat """
+                        IF NOT EXIST "${DEPLOY_DIR_UAT}" (
+                            mkdir "${DEPLOY_DIR_UAT}"
+                        )
+                        """
+                        // Copy published files to the IIS site directory
+                        bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_UAT}"
+                    }
                 }
             }
         }
