@@ -27,19 +27,19 @@ pipeline {
                         env.DB_NAME = 'CTraveller_Dev'
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'dev_password'
-                        env.DEPLOY_DIR = "C:\\Users\\dccpl\\source\\dev"
+                        env.DEPLOY_DIR = "dev"
                     } else if (params.ENV == 'Production') {
                         env.DB_SERVER = 'prod_server'
                         env.DB_NAME = 'CTraveller_Prod'
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'prod_password'
-                        env.DEPLOY_DIR = "C:\\Users\\dccpl\\source\\prod"
+                        env.DEPLOY_DIR = "prod"
                     } else if (params.ENV == 'UAT') {
                         env.DB_SERVER = 'uat_server'
                         env.DB_NAME = 'CTraveller_UAT'
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'uat_password'
-                        env.DEPLOY_DIR =  "C:\\Users\\dccpl\\source\\uat"
+                        env.DEPLOY_DIR =  "uat"
                     }
                     echo "Environment: ${params.ENV}"
                     echo "DB_SERVER: ${env.DB_SERVER}"
