@@ -61,6 +61,8 @@ pipeline {
         stage('Update Config') {
             steps {
                 echo 'Updating configuration...'
+                  bat "echo %DEPLOY_DIR%"
+                   bat "echo %DB_SERVER%"
                 script {
                     def appSettingsPath = 'appsettings.json'
                     bat """
