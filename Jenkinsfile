@@ -23,18 +23,21 @@ pipeline {
             steps {
                 script {
                     if (params.ENV == 'Development') {
+                        echo "Dev"
                         env.DB_SERVER = 'localhost'
                         env.DB_NAME = 'CTraveller_Dev'
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'dev_password'
                         env.DEPLOY_DIR = "dev"
                     } else if (params.ENV == 'Production') {
+                    echo "Prod"
                         env.DB_SERVER = 'prod_server'
                         env.DB_NAME = 'CTraveller_Prod'
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'prod_password'
                         env.DEPLOY_DIR = "prod"
                     } else if (params.ENV == 'UAT') {
+                    echo "UAT"
                         env.DB_SERVER = 'uat_server'
                         env.DB_NAME = 'CTraveller_UAT'
                         env.DB_USER = 'sa'
