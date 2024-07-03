@@ -40,8 +40,14 @@ pipeline {
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'uat_password'
                         env.DEPLOY_DIR =  "C:\\Users\\dccpl\\source\\uat"
-                       
                     }
+                    echo "Environment: ${params.ENV}"
+                    echo "DB_SERVER: ${env.DB_SERVER}"
+                    echo "DB_NAME: ${env.DB_NAME}"
+                    echo "DB_USER: ${env.DB_USER}"
+                    echo "DB_PASSWORD: ${env.DB_PASSWORD}"
+                    echo "DEPLOY_DIR: ${env.DEPLOY_DIR}"
+                    echo "SITE_NAME: ${env.SITE_NAME}"
                 }
             }
         }
@@ -61,12 +67,9 @@ pipeline {
         stage('Update Config') {
             steps {
                 echo 'Updating configuration...'
-                  bat "echo %env.DEPLOY_DIR%"
-                   bat "echo %env.DB_SERVER%"
                 script {
-                    def appSettingsPath = 'appsettings.json'
                     bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -File update-config.ps1 -appSettingsPath appsettings.json -dbServer %%DB_SERVER%% -dbName %%DB_NAME%% -dbUser %%DB_USER%% -dbPassword %%DB_PASSWORD%%'
+                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}' }"
                     """
                 }
             }
@@ -87,20 +90,27 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 script {
-                   bat "echo %DEPLOY_DIR%"
-                   bat "echo %DB_SERVER%"
+                    def deployDir = env.DEPLOY_DIR
+                    def dbServer = env.DB_SERVER
+                    def dbName = env.DB_NAME
+                    def dbUser = env.DB_USER
+                    def dbPassword = env.DB_PASSWORD
+
+                    bat "echo Deploy Directory: ${deployDir}"
+                    bat "echo Database Server: ${dbServer}"
+                    bat "echo Database Name: ${dbName}"
+                    bat "echo Database User: ${dbUser}"
+                    bat "echo Database Password: ${dbPassword}"
 
                     // Ensure IIS site directory exists
                     bat """
-                    IF NOT EXIST %DEPLOY_DIR% (
-                        mkdir %DEPLOY_DIR%
+                    IF NOT EXIST "${deployDir}" (
+                        mkdir "${deployDir}"
                     )
                     """
 
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish %DEPLOY_DIR%"
-                    
-                   
-                   
+                    // Copy published files to the IIS site directory
+                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
                 }
             }
         }
