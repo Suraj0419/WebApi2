@@ -39,7 +39,7 @@ pipeline {
                         env.DB_NAME = 'CTraveller_UAT'
                         env.DB_USER = 'sa'
                         env.DB_PASSWORD = 'uat_password'
-                        env.DEPLOY_DIR =  "C:\\Users\\dccpl\\source\\prod"
+                        env.DEPLOY_DIR =  "C:\\Users\\dccpl\\source\\uat"
                        
                     }
                 }
@@ -85,7 +85,8 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 script {
-                   
+                   bat "echo ${env.DEPLOY_DIR}"
+                   bat "echo ${env.DB_SERVER}"
 
                     // Ensure IIS site directory exists
                     bat """
