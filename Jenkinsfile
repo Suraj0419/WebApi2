@@ -53,7 +53,7 @@ pipeline {
                     powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER_DEV}' -dbName '${DB_NAME_DEV}' -dbUser '${DB_USER_DEV}' -dbPassword '${env.DB_PASSWORD_DEV}' }"
                     """
                       
-                    } else if (params.ENV == 'Production') {'
+                    } else if (params.ENV == 'Production') {
 
                      bat """
                     powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER_PROD}' -dbName '${env.DB_NAME_PROD}' -dbUser '${env.DB_USER_PROD}' -dbPassword '${env.DB_PASSWORD_PROD}' }"
