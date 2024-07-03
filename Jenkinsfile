@@ -64,7 +64,7 @@ pipeline {
                 script {
                     def appSettingsPath = 'appsettings.json'
                     bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -File update-config.ps1 -appSettingsPath appsettings.json -dbServer %DB_SERVER% -dbName %%DB_NAME%% -dbUser %DB_USER% -dbPassword %DB_PASSWORD%'
+                    powershell -NoProfile -ExecutionPolicy Bypass -File update-config.ps1 -appSettingsPath appsettings.json -dbServer %DB_SERVER% -dbName %DB_NAME% -dbUser %DB_USER% -dbPassword %DB_PASSWORD%'
                     """
                 }
             }
