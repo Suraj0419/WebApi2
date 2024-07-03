@@ -64,7 +64,7 @@ pipeline {
                 script {
                     def appSettingsPath = 'appsettings.json'
                     bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -File update-config.ps1 -appSettingsPath appsettings.json -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}'
+                    powershell -NoProfile -ExecutionPolicy Bypass -File update-config.ps1 -appSettingsPath appsettings.json -dbServer %%DB_SERVER%% -dbName %%DB_NAME%% -dbUser %%DB_USER%% -dbPassword %%DB_PASSWORD%%'
                     """
                 }
             }
@@ -90,12 +90,12 @@ pipeline {
 
                     // Ensure IIS site directory exists
                     bat """
-                    IF NOT EXIST "${env.DEPLOY_DIR}" (
-                        mkdir "${env.DEPLOY_DIR}"
+                    IF NOT EXIST %%DEPLOY_DIR%% (
+                        mkdir %%DEPLOY_DIR%%
                     )
                     """
 
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${env.DEPLOY_DIR}"
+                    bat "xcopy /E /I /Y %WORKSPACE%\\publish %%DEPLOY_DIR%%"
                     
                    
                    
