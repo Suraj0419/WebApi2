@@ -19,7 +19,7 @@ pipeline {
         DB_USER_DEV = 'devUser'
         DB_USER_PROD = 'devProd'
         DB_USER_UAT = 'devUser'
-        DB_PASSWORD_DEV = 'dev1234
+        DB_PASSWORD_DEV = 'dev1234'
          DB_PASSWORD_PROD = 'PROD1234'
           DB_PASSWORD_UAT = 'UAT1234'
         DEPLOY_DIR_DEV = 'dev'
