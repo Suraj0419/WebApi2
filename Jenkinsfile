@@ -96,7 +96,7 @@ pipeline {
                     def dbUser = env.DB_USER
                     def dbPassword = env.DB_PASSWORD
 
-                    bat "echo Deploy Directory: %deployDir%"
+                    bat "echo Deploy Directory: %env.DEPLOY_DIR%"
                     bat "echo Database Server: ${dbServer}"
                     bat "echo Database Name: ${dbName}"
                     bat "echo Database User: ${dbUser}"
