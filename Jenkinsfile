@@ -52,11 +52,7 @@ pipeline {
             }
         }
 
-        stage('Clean the workspace') {
-            steps {
-                cleanWs()
-            }
-        }
+        
 
         stage('Clone the GitHub repo') {
             steps {
@@ -96,7 +92,7 @@ pipeline {
                     def dbUser = env.DB_USER
                     def dbPassword = env.DB_PASSWORD
 
-                    bat "echo Deploy Directory: %env.DEPLOY_DIR%"
+                    bat "echo Deploy Directory:  ${dbServer}"
                     bat "echo Database Server: ${dbServer}"
                     bat "echo Database Name: ${dbName}"
                     bat "echo Database User: ${dbUser}"
