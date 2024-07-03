@@ -9,107 +9,102 @@ pipeline {
         choice(name: 'ENV', choices: ['Development', 'Production', 'UAT'], description: 'Select the environment')
     }
 
-    environment {
-        DB_SERVER = ''
-        DB_NAME = ''
-        DB_USER = ''
-        DB_PASSWORD = ''
-        DEPLOY_DIR = ''
-        SITE_NAME = ''
-    }
-
     stages {
         stage('Set Environment Variables') {
             steps {
                 script {
+                    def envVars = []
+
                     if (params.ENV == 'Development') {
-                        echo "Dev"
-                        env.DB_SERVER = 'localhost'
-                        env.DB_NAME = 'CTraveller_Dev'
-                        env.DB_USER = 'sa'
-                        env.DB_PASSWORD = 'dev_password'
-                        env.DEPLOY_DIR = "dev"
+                        envVars = [
+                            'DB_SERVER=localhost',
+                            'DB_NAME=CTraveller_Dev',
+                            'DB_USER=sa',
+                            'DB_PASSWORD=dev_password',
+                            'DEPLOY_DIR=C:\\Users\\dccpl\\source\\dev'
+                        ]
                     } else if (params.ENV == 'Production') {
-                    echo "Prod"
-                        env.DB_SERVER = 'prod_server'
-                        env.DB_NAME = 'CTraveller_Prod'
-                        env.DB_USER = 'sa'
-                        env.DB_PASSWORD = 'prod_password'
-                        env.DEPLOY_DIR = "prod"
+                        envVars = [
+                            'DB_SERVER=prod_server',
+                            'DB_NAME=CTraveller_Prod',
+                            'DB_USER=sa',
+                            'DB_PASSWORD=prod_password',
+                            'DEPLOY_DIR=C:\\Users\\dccpl\\source\\prod'
+                        ]
                     } else if (params.ENV == 'UAT') {
-                    echo "UAT"
-                        env.DB_SERVER = 'uat_server'
-                        env.DB_NAME = 'CTraveller_UAT'
-                        env.DB_USER = 'sa'
-                        env.DB_PASSWORD = 'uat_password'
-                        env.DEPLOY_DIR =  "uat"
+                        envVars = [
+                            'DB_SERVER=uat_server',
+                            'DB_NAME=CTraveller_UAT',
+                            'DB_USER=sa',
+                            'DB_PASSWORD=uat_password',
+                            'DEPLOY_DIR=C:\\Users\\dccpl\\source\\uat'
+                        ]
                     }
-                    echo "Environment: ${params.ENV}"
-                    echo "DB_SERVER: ${env.DB_SERVER}"
-                    echo "DB_NAME: ${env.DB_NAME}"
-                    echo "DB_USER: ${env.DB_USER}"
-                    echo "DB_PASSWORD: ${env.DB_PASSWORD}"
-                    echo "DEPLOY_DIR: ${env.DEPLOY_DIR}"
-                    echo "SITE_NAME: ${env.SITE_NAME}"
-                }
-            }
-        }
 
-        
+                    withEnv(envVars) {
+                        echo "Environment: ${params.ENV}"
+                        echo "DB_SERVER: ${env.DB_SERVER}"
+                        echo "DB_NAME: ${env.DB_NAME}"
+                        echo "DB_USER: ${env.DB_USER}"
+                        echo "DB_PASSWORD: ${env.DB_PASSWORD}"
+                        echo "DEPLOY_DIR: ${env.DEPLOY_DIR}"
 
-        stage('Clone the GitHub repo') {
-            steps {
-                git 'https://github.com/Suraj0419/WebApi2.git'
-            }
-        }
+                        // Proceed with other stages
+                        stage('Clean the workspace') {
+                            steps {
+                                cleanWs()
+                            }
+                        }
 
-        stage('Update Config') {
-            steps {
-                echo 'Updating configuration...'
-                script {
-                    bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}' }"
-                    """
-                }
-            }
-        }
+                        stage('Clone the GitHub repo') {
+                            steps {
+                                git 'https://github.com/Suraj0419/WebApi2.git'
+                            }
+                        }
 
-        stage('Build') {
-            steps {
-                bat 'dotnet build --configuration Release'
-            }
-        }
+                        stage('Update Config') {
+                            steps {
+                                echo 'Updating configuration...'
+                                bat """
+                                powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}' }"
+                                """
+                            }
+                        }
 
-        stage('Publish') {
-            steps {
-                bat 'dotnet publish --configuration Release --output %WORKSPACE%\\publish'
-            }
-        }
+                        stage('Build') {
+                            steps {
+                                bat 'dotnet build --configuration Release'
+                            }
+                        }
 
-        stage('Deploy to IIS') {
-            steps {
-                script {
-                    def deployDir = env.DEPLOY_DIR
-                    def dbServer = env.DB_SERVER
-                    def dbName = env.DB_NAME
-                    def dbUser = env.DB_USER
-                    def dbPassword = env.DB_PASSWORD
+                        stage('Publish') {
+                            steps {
+                                bat 'dotnet publish --configuration Release --output %WORKSPACE%\\publish'
+                            }
+                        }
 
-                    bat "echo Deploy Directory:  ${dbServer}"
-                    bat "echo Database Server: ${dbServer}"
-                    bat "echo Database Name: ${dbName}"
-                    bat "echo Database User: ${dbUser}"
-                    bat "echo Database Password: ${dbPassword}"
+                        stage('Deploy to IIS') {
+                            steps {
+                                script {
+                                    bat "echo Deploy Directory: ${env.DEPLOY_DIR}"
+                                    bat "echo Database Server: ${env.DB_SERVER}"
+                                    bat "echo Database Name: ${env.DB_NAME}"
+                                    bat "echo Database User: ${env.DB_USER}"
+                                    bat "echo Database Password: ${env.DB_PASSWORD}"
 
-                    // Ensure IIS site directory exists
-                    bat """
-                    IF NOT EXIST "${deployDir}" (
-                        mkdir "${deployDir}"
-                    )
-                    """
+                                    // Ensure IIS site directory exists
+                                    bat """
+                                    IF NOT EXIST "${env.DEPLOY_DIR}" (
+                                        mkdir "${env.DEPLOY_DIR}"
+                                    )
+                                    """
 
-                    // Copy published files to the IIS site directory
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${deployDir}"
+                                    // Copy published files to the IIS site directory
+                                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${env.DEPLOY_DIR}"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
