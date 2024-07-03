@@ -10,57 +10,26 @@ pipeline {
     }
 
     environment {
-        DB_SERVER = ''
-        DB_NAME = ''
-        DB_USER = ''
-        DB_PASSWORD = ''
-        DEPLOY_DIR = ''
-        SITE_NAME = ''
+        DB_SERVER_DEV = 'localhost'
+        DB_SERVER_PROD='prodserver'
+         DB_SERVER_UAT='UATserver'
+        DB_NAME_DEV = 'devDB'
+         DB_NAME_PROD = 'prodDB'
+          DB_NAME_UAT = 'uatDB'
+        DB_USER_DEV = 'devUser'
+        DB_USER_PROD = 'devProd'
+        DB_USER_UAT = 'devUser'
+        DB_PASSWORD_DEV = 'dev1234
+         DB_PASSWORD_PROD = 'PROD1234'
+          DB_PASSWORD_UAT = 'UAT1234'
+        DEPLOY_DIR_DEV = 'dev'
+         DEPLOY_DIR_PROD = 'prod'
+          DEPLOY_DIR_UAT = 'uat'
+        
     }
 
     stages {
-        stage('Set Environment Variables') {
-            steps {
-                script {
-                    def envVars = []
-
-                    if (params.ENV == 'Development') {
-                        envVars = [
-                            'DB_SERVER=localhost',
-                            'DB_NAME=CTraveller_Dev',
-                            'DB_USER=sa',
-                            'DB_PASSWORD=dev_password',
-                            'DEPLOY_DIR=dev'
-                        ]
-                    } else if (params.ENV == 'Production') {
-                        envVars = [
-                            'DB_SERVER=prod_server',
-                            'DB_NAME=CTraveller_Prod',
-                            'DB_USER=sa',
-                            'DB_PASSWORD=prod_password',
-                            'DEPLOY_DIR=prod'
-                        ]
-                    } else if (params.ENV == 'UAT') {
-                        envVars = [
-                            'DB_SERVER=uat_server',
-                            'DB_NAME=CTraveller_UAT',
-                            'DB_USER=sa',
-                            'DB_PASSWORD=uat_password',
-                            'DEPLOY_DIR=uat'
-                        ]
-                    }
-
-                    withEnv(envVars) {
-                        echo "Environment: ${params.ENV}"
-                        echo "DB_SERVER: ${env.DB_SERVER}"
-                        echo "DB_NAME: ${env.DB_NAME}"
-                        echo "DB_USER: ${env.DB_USER}"
-                        echo "DB_PASSWORD: ${env.DB_PASSWORD}"
-                        echo "DEPLOY_DIR: ${env.DEPLOY_DIR}"
-                    }
-                }
-            }
-        }
+       
 
         stage('Clean the workspace') {
             steps {
@@ -78,9 +47,23 @@ pipeline {
             steps {
                 echo 'Updating configuration...'
                 script {
+                   if (params.ENV == 'Development') {
+
                     bat """
-                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER}' -dbName '${env.DB_NAME}' -dbUser '${env.DB_USER}' -dbPassword '${env.DB_PASSWORD}' }"
+                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${DB_SERVER_DEV}' -dbName '${DB_NAME_DEV}' -dbUser '${DB_USER_DEV}' -dbPassword '${env.DB_PASSWORD_DEV}' }"
                     """
+                      
+                    } else if (params.ENV == 'Production') {'
+
+                     bat """
+                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER_PROD}' -dbName '${env.DB_NAME_PROD}' -dbUser '${env.DB_USER_PROD}' -dbPassword '${env.DB_PASSWORD_PROD}' }"
+                    """
+                       
+                    } else if (params.ENV == 'UAT') {
+                        bat """
+                    powershell -NoProfile -ExecutionPolicy Bypass -Command "& { .\\update-config.ps1 -appSettingsPath 'appsettings.json' -dbServer '${env.DB_SERVER_UAT}' -dbName '${env.DB_NAME_UAT}' -dbUser '${env.DB_USER_UAT}' -dbPassword '${env.DB_PASSWORD_UAT}' }"
+                    """
+                   
                 }
             }
         }
@@ -100,21 +83,41 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 script {
-                    bat "echo Deploy Directory: ${DEPLOY_DIR}"
-                    bat "echo Database Server: ${DB_SERVER}"
-                    bat "echo Database Name: ${DB_NAME}"
-                    bat "echo Database User: ${DB_USER}"
-                    bat "echo Database Password: ${DB_PASSWORD}"
 
-                    // Ensure IIS site directory exists
-                    bat """
-                    IF NOT EXIST "${DEPLOY_DIR}" (
-                        mkdir "${DEPLOY_DIR}"
+                    if (params.ENV == 'Development') {
+
+                   bat """
+                    IF NOT EXIST "${DEPLOY_DIR_DEV}" (
+                        mkdir "${deployDir}"
                     )
                     """
 
                     // Copy published files to the IIS site directory
-                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR}"
+                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_DEV}"
+                      
+                    } else if (params.ENV == 'Production') {
+
+                   bat """
+                    IF NOT EXIST "${DEPLOY_DIR_PROD}" (
+                        mkdir "${DEPLOY_DIR_PROD}"
+                    )
+                    """
+
+                    // Copy published files to the IIS site directory
+                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_PROD}"
+                       
+                    } else if (params.ENV == 'UAT') {
+                       bat """
+                    IF NOT EXIST "${deployDir}" (
+                        mkdir "${DEPLOY_DIR_UAT}"
+                    )
+                    """
+
+                    // Copy published files to the IIS site directory
+                    bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_UAT}"
+                   
+                }
+                    
                 }
             }
         }
