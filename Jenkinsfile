@@ -10,6 +10,13 @@ pipeline {
     }
 
     environment {
+        DOCKER_IMAGE = 'webapi2-image'
+        DOCKER_CONTAINER_NAME_DEV = 'webapi2-dev'
+        DOCKER_CONTAINER_NAME_PROD = 'webapi2-prod'
+        DOCKER_CONTAINER_NAME_UAT = 'webapi2-uat'
+        DOCKER_PORT_DEV = '9090'
+        DOCKER_PORT_PROD = '9091'
+        DOCKER_PORT_UAT = '9092'
         DB_SERVER_DEV = 'localhost'
         DB_SERVER_PROD = 'prodserver'
         DB_SERVER_UAT = 'UATserver'
@@ -22,9 +29,6 @@ pipeline {
         DB_PASSWORD_DEV = 'dev1234'
         DB_PASSWORD_PROD = 'PROD1234'
         DB_PASSWORD_UAT = 'UAT1234'
-        DEPLOY_DIR_DEV = 'dev'
-        DEPLOY_DIR_PROD = 'prod'
-        DEPLOY_DIR_UAT = 'uat'
     }
 
     stages {
@@ -61,45 +65,31 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                bat 'dotnet build --configuration Release'
+                script {
+                    bat """
+                    docker build -t ${DOCKER_IMAGE}:${params.ENV} .
+                    """
+                }
             }
         }
 
-        stage('Publish') {
-            steps {
-                bat 'dotnet publish --configuration Release --output %WORKSPACE%\\publish'
-            }
-        }
-
-        stage('Deploy to IIS') {
+        stage('Run and Deploy Docker Container') {
             steps {
                 script {
                     if (params.ENV == 'Development') {
                         bat """
-                        IF NOT EXIST "${DEPLOY_DIR_DEV}" (
-                            mkdir "${DEPLOY_DIR_DEV}"
-                        )
+                        docker run -d --rm --name ${DOCKER_CONTAINER_NAME_DEV} -p ${DOCKER_PORT_DEV}:80 ${DOCKER_IMAGE}:${params.ENV}
                         """
-                        // Copy published files to the IIS site directory
-                        bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_DEV}"
                     } else if (params.ENV == 'Production') {
                         bat """
-                        IF NOT EXIST "${DEPLOY_DIR_PROD}" (
-                            mkdir "${DEPLOY_DIR_PROD}"
-                        )
+                        docker run -d --rm --name ${DOCKER_CONTAINER_NAME_PROD} -p ${DOCKER_PORT_PROD}:80 ${DOCKER_IMAGE}:${params.ENV}
                         """
-                        // Copy published files to the IIS site directory
-                        bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_PROD}"
                     } else if (params.ENV == 'UAT') {
                         bat """
-                        IF NOT EXIST "${DEPLOY_DIR_UAT}" (
-                            mkdir "${DEPLOY_DIR_UAT}"
-                        )
+                        docker run -d --rm --name ${DOCKER_CONTAINER_NAME_UAT} -p ${DOCKER_PORT_UAT}:80 ${DOCKER_IMAGE}:${params.ENV}
                         """
-                        // Copy published files to the IIS site directory
-                        bat "xcopy /E /I /Y %WORKSPACE%\\publish ${DEPLOY_DIR_UAT}"
                     }
                 }
             }
