@@ -18,6 +18,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
+app.MapGet("/", () => "Welcome to the Web API!");
+
 app.MapControllers();
 
 app.Run();
